@@ -86,7 +86,7 @@ class Client
         $this->token = $token;
         $this->client = new \GuzzleHttp\Client([
             'handler'  => $stack,
-            'base_url' => $this->baseUrl,
+            'base_uri' => $this->baseUrl,
             'timeout'  => 1
         ]);
         $this->request = new Request();
