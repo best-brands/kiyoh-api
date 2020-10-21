@@ -71,15 +71,16 @@ class Request
     public function getReviews(string $locationId, array $params = []): array
     {
         $url = '/v1/publication/review/external';
+
+        foreach ($params as $param => $value) {
+            if ($value instanceof DateTime)
+                $params[$param] = $value->format(DATE_ATOM);
+        }
+
         $data = [
             RequestOptions::HEADERS => $this->headers,
             RequestOptions::QUERY   => array_merge(
-                array_map(
-                    fn($item) => $item instanceof DateTime
-                        ? $item->format(DATE_ATOM)
-                        : $item,
-                    $params
-                ),
+                $params,
                 [
                     'locationId' => $locationId,
                     'tenantId'   => 98,
