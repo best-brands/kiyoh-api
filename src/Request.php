@@ -54,23 +54,35 @@ class Request
      * This operation will get the reviews for external reviews.
      *
      * @param string $locationId
-     * @param DateTime $since
-     * @param $params
+     * @param array $params
+     *
+     * The additional parameters can include the following:
+     * ```php
+     * $params = [
+     *     'reviewId' => 1,
+     *     'orderBy'  => 'CREATE_DATE' | 'UPDATE_DATE' | 'RATING',
+     *     'sortOrder' => 'ASC' | 'DESC',
+     *     'limit'     => 10,
+     * ];
+     * ```
      *
      * @return array
      */
-    public function getReviews(string $locationId, DateTime $since, array $params = []): array
+    public function getReviews(string $locationId, array $params = []): array
     {
         $url = '/v1/publication/review/external';
         $data = [
             RequestOptions::HEADERS => $this->headers,
             RequestOptions::QUERY   => array_merge(
-                $params,
+                array_map(
+                    fn($item) => $item instanceof DateTime
+                        ? $item->format(DATE_ATOM)
+                        : $item,
+                    $params
+                ),
                 [
                     'locationId' => $locationId,
                     'tenantId'   => 98,
-                    'dateSince'  => $since->format(DATE_ATOM),
-                    'limit'      => 100,
                 ]
             ),
         ];

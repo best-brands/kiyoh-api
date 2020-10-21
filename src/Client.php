@@ -29,8 +29,8 @@ use Throwable;
  *
  * @method ReducedLocation[] getLatestStatistics(DateTime $since, ?DateTime $updated_since = null, int $limit = 50)
  * @method PromiseInterface getLatestStatisticsAsync(DateTime $since, ?DateTime $updated_since = null, int $limit = 50)
- * @method Location getReviews(string $locationId, DateTime $since, array $params = [])
- * @method PromiseInterface getReviewsAsync(string $locationId, DateTime $since, array $params = [])
+ * @method Location getReviews(string $locationId, array $params = [])
+ * @method PromiseInterface getReviewsAsync(string $locationId, array $params = [])
  * @method string getLastRemovedReview(DateTime $updatedSince)
  * @method PromiseInterface getLastRemovedReviewAsync(DateTime $updatedSince)
  * @method LocationStatistics getLocationStatistics(string $locationId)
@@ -74,7 +74,7 @@ class Client
      * @param string $base_url
      * @throws Notice
      */
-    public function __construct(string $token, string $base_url = self::API_URL_KIYOH_COM)
+    public function __construct(string $token, string $base_url = self::API_URL_KIYOH_COM, $timeout = 10)
     {
         $stack = HandlerStack::create();
         $stack->push(Middleware::mapRequest($this->getRequestHandler()));
@@ -87,7 +87,7 @@ class Client
         $this->client = new \GuzzleHttp\Client([
             'handler'  => $stack,
             'base_uri' => $this->baseUrl,
-            'timeout'  => 1
+            'timeout'  => $timeout
         ]);
         $this->request = new Request();
         $this->populator = new Populator();
@@ -113,7 +113,7 @@ class Client
      */
     private function getRetryHandler()
     {
-        return function ($retries, ?RequestInterface $request, ?ResponseInterface $response, ?RequestException $exception) {
+        return function ($retries, ?RequestInterface $request, ?ResponseInterface $response, ?GuzzleException $exception) {
             if ($response && $response->getStatusCode() !== 200)
                 throw new KiyohException(json_decode($response->getBody(), true));
 
