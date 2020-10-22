@@ -84,6 +84,8 @@ class AModel
             ($result = new \DateTime())->setTimestamp($updatedSince);
         elseif ($parsed = \DateTime::createFromFormat("Y-m-d\TH:i:s.v\Z", $updatedSince))
             $result = $parsed;
+        elseif ($parsed = DateTime::createFromFormat(DATE_ISO8601, $updatedSince))
+            $result = $parsed;
 
         return $result;
     }
